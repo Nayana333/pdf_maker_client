@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-export default function HomePage() {
+function HomePage (){
   const [email, setEmail] = useState('')
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,3 +164,5 @@ export default function HomePage() {
     </div>
   )
 }
+
+export default HomePage
