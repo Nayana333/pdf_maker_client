@@ -1,23 +1,24 @@
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useNavigate } from 'react-router-dom'
 
-function HomePage (){
+function HomePage() {
   const [email, setEmail] = useState('')
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
   }
+  const navigate = useNavigate();
 
-  const handleSignUp = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Implement your sign up logic here
-    console.log('Signing up with:', email)
-  }
+  const handleSignUp =  (e:React.FormEvent) => {
+    e.preventDefault();
+    navigate(`/register?email=${email}`);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
-      <header className="px-4 lg:px-6 h-14 flex items-center">
+      <header className="px-6 lg:px-8 h-16 flex items-center">
         <a className="flex items-center justify-center" href="#">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -36,28 +37,30 @@ function HomePage (){
           </svg>
           <span className="ml-2 text-lg font-bold">PDF Maker</span>
         </a>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <a className="text-sm font-medium hover:underline underline-offset-4" href="#">
+        <nav className="ml-auto flex gap-6 sm:gap-8">
+          <a className="text-md font-medium hover:underline underline-offset-4" href="#">
             Features
           </a>
-          <a className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <a className="text-md font-medium hover:underline underline-offset-4" href="#">
             Pricing
           </a>
-          <a className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <a className="text- font-medium hover:underline underline-offset-4" href="#">
             About
           </a>
-          <Button variant="outline" className="text-purple-400 border-purple-400 hover:bg-purple-400 hover:text-gray-900">
+          <Button variant="outline" className="text-purple-400 border-purple-400 hover:bg-purple-400 hover:text-gray-900" onClick={()=>{navigate('/login')}}>
             Log in
+
           </Button>
-          <Button className="bg-purple-500 text-gray-900 hover:bg-purple-600">Sign up</Button>
+          <Button className="bg-purple-500 text-gray-900 hover:bg-purple-600" onClick={()=>{navigate('/signup')}} >Sign up</Button>
         </nav>
       </header>
+
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+        <section className="w-full py-16 md:py-24 lg:py-32">
+          <div className="container px-6 md:px-8">
+            <div className="flex flex-col items-center space-y-4 text-center " style={{paddingLeft:'301px'}}>
+              <div className="space-y-3">
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
                   Create Professional PDFs in Minutes
                 </h1>
                 <p className="mx-auto max-w-[700px] text-gray-400 md:text-xl">
@@ -73,8 +76,9 @@ function HomePage (){
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-800">
-          <div className="container px-4 md:px-6">
+
+        <section className="w-full py-14 md:py-24 lg:py-32 bg-gray-800" style={{padding:'134px'}}>
+          <div className="container px-6 md:px-8">
             <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { icon: 'zap', title: 'Lightning Fast', description: 'Create PDFs in seconds with our optimized engine.' },
@@ -118,8 +122,9 @@ function HomePage (){
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6">
+
+        <section className="w-full py-14 md:py-24 lg:py-32" style={{paddingLeft:'172px'}}>
+          <div className="container px-6 md:px-8">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">Ready to start creating?</h2>
@@ -137,7 +142,7 @@ function HomePage (){
                     onChange={handleEmailChange}
                     required
                   />
-                  <Button type="submit" className="bg-purple-500 text-gray-900 hover:bg-purple-600">Sign Up</Button>
+                  <Button type="submit" className="bg-purple-500 text-gray-900 hover:bg-purple-600" onClick={()=>{navigate('/signup')}}>Sign Up</Button>
                 </form>
                 <p className="text-xs text-gray-400">
                   By signing up, you agree to our{" "}
@@ -150,7 +155,8 @@ function HomePage (){
           </div>
         </section>
       </main>
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t border-gray-700">
+
+      <footer className="flex flex-col gap-2 sm:flex-row py-8 w-full shrink-0 items-center px-6 md:px-8 border-t border-gray-700">
         <p className="text-xs text-gray-400">© 2023 PDF Maker. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <a className="text-xs hover:underline underline-offset-4 text-gray-400" href="#">
