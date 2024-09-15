@@ -4,7 +4,7 @@ import App from './App.tsx'
 import { RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { Toaster } from 'sonner';
+import { Toaster } from "@/components/ui/sonner"
 import { store, persistor } from './utils/context/store.ts';
 import appRouter from './routes/userRoutes.tsx';
 import ReactDOM from 'react-dom/client';

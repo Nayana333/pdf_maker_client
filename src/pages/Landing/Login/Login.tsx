@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { motion } from "framer-motion"
+import { AiOutlineGoogle } from "react-icons/ai"
+
+
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>('')
@@ -13,7 +17,6 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Login attempted with:', { email, password })
-    // Here you would typically handle the login logic
   }
 
   return (
@@ -38,7 +41,7 @@ export default function LoginPage() {
               type="email"
               placeholder="m@example.com"
               required
-              className="bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring-blue-500 h-12" // Increased height
+              className="bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring-blue-500 h-12" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -93,14 +96,13 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <Button
-          variant="outline"
-          type="button"
-          className="w-full bg-gray-700 border-gray-600 hover:bg-gray-600 transition-colors duration-300 h-12"
-        >
-          {/* <Icons.google className="mr-2 h-4 w-4" /> */}
-          Google
-        </Button>
+        <button
+      type="button"
+      className="w-full bg-gray-700 border-gray-600 hover:bg-gray-600 transition-colors duration-300 h-12 flex items-center justify-center"
+    >
+      <AiOutlineGoogle className="mr-2 h-4 w-4" />
+      Google
+    </button>
 
         <p className="mt-8 text-center text-sm text-gray-400">
           Not a member?{' '}
