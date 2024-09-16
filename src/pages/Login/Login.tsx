@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import {  useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -65,11 +65,11 @@ export default function LoginPage() {
   }
 
   // Redirect if already logged in
-  // useEffect(() => {
-  //   if (user) {
-  //     navigate('/home')
-  //   }
-  // }, [user, navigate])
+  useEffect(() => {
+    if (user) {
+      navigate('/home')
+    }
+  }, [user, navigate])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white">

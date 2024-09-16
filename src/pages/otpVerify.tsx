@@ -50,10 +50,10 @@ export default function OtpVerify() {
     otpRefs.current[0]?.focus(); 
 
     postResendOtp({ email: email }) 
-      .then((response: any) => {
+      .then((_response: any) => {
         toast.success("OTP resent to your email.");
       })
-      .catch((error) => {
+      .catch((_error) => {
         toast.error("Error resending OTP.");
       });
   };
@@ -68,12 +68,12 @@ export default function OtpVerify() {
     setIsVerifying(true);
 
     postOtp({ otp: otp.join('') })
-      .then((response: any) => {
+      .then((_response: any) => {
         toast.success("OTP verified!");
         navigate('/login')
         
       })
-      .catch((error) => {
+      .catch((_error) => {
         toast.error("Invalid OTP.");
       })
       .finally(() => {

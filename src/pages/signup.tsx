@@ -91,11 +91,11 @@ export default function SignUpPage() {
       });
   };
 
-  // useEffect(() => {
-  //   if (user) {
-  //     navigate('/home');
-  //   }
-  // }, [user, navigate]);
+  useEffect(() => {
+    if (user) {
+      navigate('/home');
+    }
+  }, [user, navigate]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white">
