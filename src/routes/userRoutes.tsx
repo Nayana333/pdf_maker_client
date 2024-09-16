@@ -3,6 +3,8 @@ import HomePage from '@/pages/Landing/landing';
 import LoginPage from '@/pages/Login/Login';
 import SignUpPage from '@/pages/signup';
 import OtpVerify from '@/pages/otpVerify';
+import Home from '@/pages/HomePage';
+import RequestOTPForm from '@/pages/forgotEmail';
 
 
 const appRouter = createBrowserRouter([
@@ -21,6 +23,14 @@ const appRouter = createBrowserRouter([
     {
       path:'/otp',
       element:<OtpVerify/>
+    },
+    {
+      path:'/home',
+      element:<Home/>
+    },
+    {
+      path:'/forgotemail',
+      element:<RequestOTPForm/>
     }
   ]);
 

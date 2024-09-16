@@ -26,6 +26,8 @@ export default function OtpVerify() {
   };
 
   const navigate=useNavigate()
+  const queryParams = new URLSearchParams(location.search);
+  const email = queryParams.get('email') || "";
 
   // Timer for OTP resend
   useEffect(() => {
@@ -42,12 +44,12 @@ export default function OtpVerify() {
 
   // Resend OTP Handler
   const handleResendClick = () => {
-    setTimer(60); // Reset timer
+    setTimer(60); 
     setResend(false);
-    setOtp(['', '', '', '']); // Reset OTP inputs
-    otpRefs.current[0]?.focus(); // Focus the first input after reset
+    setOtp(['', '', '', '']); 
+    otpRefs.current[0]?.focus(); 
 
-    postResendOtp({ email: "test@example.com" }) // Use actual email
+    postResendOtp({ email: email }) 
       .then((response: any) => {
         toast.success("OTP resent to your email.");
       })

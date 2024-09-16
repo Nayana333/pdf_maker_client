@@ -4,10 +4,21 @@ import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { FileUp, User, File, ChevronRight } from "lucide-react"
+import { logout } from '@/utils/context/reducers/authSlice'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { FileUp, User, File, ChevronRight, LogOut } from "lucide-react"
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 export default function Component() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -18,6 +29,9 @@ export default function Component() {
     }
   }
 
+  const dispatch=useDispatch()
+  const navigate=useNavigate()
+
   const handleGetPages = () => {
     if (selectedFile) {
       console.log(`Processing ${selectedFile.name}...`)
@@ -27,32 +41,47 @@ export default function Component() {
     }
   }
 
+  const handleViewProfile = () => {
+    console.log("View Profile clicked")
+    // Implement view profile logic here
+  }
+
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("userRefreshToken");
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white flex flex-col">
       <header className="bg-black bg-opacity-50 backdrop-blur-md shadow-lg fixed w-full z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <a className="flex items-center justify-center" href="#">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6 text-purple-400"
-          >
-            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-            <polyline points="14 2 14 8 20 8" />
-          </svg>
-          <span className="ml-2 text-lg font-bold">PDF Maker</span>
-        </a>
-          <Button variant="ghost" className="text-white hover:text-blue-400 transition-colors duration-300">
-            <User className="h-5 w-5 mr-2" />
-            Profile
-          </Button>
+          <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+            PDF Maker Pro
+          </h1>
+          <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="text-white hover:text-blue-400 transition-colors duration-300">
+                <User className="h-5 w-5 mr-2" />
+                Profile
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700 text-white">
+              <DropdownMenuItem className="focus:bg-gray-700 focus:text-white">
+                <span className="text-sm">user@example.com</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-gray-700" />
+              <DropdownMenuItem className="focus:bg-gray-700 focus:text-white" onSelect={handleViewProfile}>
+                <User className="mr-2 h-4 w-4" />
+                <span>View Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="focus:bg-gray-700 focus:text-white" onSelect={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Logout</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 

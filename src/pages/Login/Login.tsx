@@ -1,23 +1,75 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { motion } from "framer-motion"
 import { AiOutlineGoogle } from "react-icons/ai"
-
-
-
+import { Formik, Field, Form, ErrorMessage } from 'formik'
+import { initialValues, validationSchema } from '../../utils/validation/LoginValidation'
+import { toast } from 'sonner'
+import { useNavigate } from 'react-router-dom'
+import { signInWithPopup } from "firebase/auth"
+import { auth, provider } from "../../utils/fireConfig"
+import { googleAuthenticate, postLogin } from '../../services/api/user/apiMethods'
+import { useDispatch, useSelector } from 'react-redux'
+import { logged } from '../../utils/context/reducers/authSlice'
+import TextError from '../../components/TextError'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Login attempted with:', { email, password })
+  const userSelect = (state: any) => state.auth.user
+  const user = useSelector(userSelect)
+
+  // Formik submit logic
+  const submit = (values: any) => {
+    postLogin(values).then((response: any) => {
+      const data = response.data
+      if (response.status === 200) {
+        toast.success(data.message)
+        dispatch(logged({ user: data }))
+        localStorage.setItem('userToken', data.token)
+        navigate('/home')
+      } else {
+        toast.error(data.message)
+      }
+    }).catch((error: Error) => {
+      toast.error(error?.message)
+    })
   }
+
+  // Google authentication logic
+  const googleSubmit = () => {
+    signInWithPopup(auth, provider).then((data: any) => {
+      const userData = {
+        userName: data.user.displayName,
+        email: data.user.email,
+      }
+      googleAuthenticate(userData).then((response: any) => {
+        const data = response.data
+        if (response.status === 200) {
+          toast.success(data.message)
+          dispatch(logged({ user: data }))
+          localStorage.setItem('userToken', data.token)
+          navigate('/home')
+        } else {
+          toast.error(data.message)
+        }
+      }).catch((error: Error) => {
+        toast.error(error?.message)
+      })
+    })
+  }
+
+  // Redirect if already logged in
+  // useEffect(() => {
+  //   if (user) {
+  //     navigate('/home')
+  //   }
+  // }, [user, navigate])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white">
@@ -28,64 +80,57 @@ export default function LoginPage() {
         className="w-full max-w-xl p-8 space-y-8 bg-gray-800 rounded-xl shadow-2xl"
       >
         <div className="text-center space-y-1">
-          {/* <Icons.fileText className="mx-auto h-12 w-12 text-purple-500" /> */}
           <h2 className="text-3xl font-bold">PDF Maker</h2>
           <p className="text-zinc-400">Sign in to your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="space-y-1">
-            <Label htmlFor="email" className="text-sm font-medium">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              required
-              className="bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring-blue-500 h-12" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              className="bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring-blue-500 h-12" // Increased height
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+        <Formik initialValues={initialValues} onSubmit={submit} validationSchema={validationSchema}>
+          {() => (
+            <Form className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                <Field
+                  as={Input}
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  className="bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring-blue-500 h-12"
+                />
+                <ErrorMessage name="email" component={TextError} />
+              </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-purple-600 focus:ring-purple-500"
-              />
-              <Label htmlFor="remember-me" className="ml-2 block text-sm text-gray-400">
-                Remember me
-              </Label>
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm  font-medium">Password</Label>
+                <Field
+                  as={Input}
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  className="bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring-blue-500 h-12"
+                />
+                <ErrorMessage name="password" component={TextError} />
+              </div>
 
-            <div className="text-sm">
-              <a href="#" className="font-medium text-blue-700 hover:text-blue-600">
-                Forgot your password?
-              </a>
-            </div>
-          </div>
-          
+              <Button
+                type="submit"
+                className="w-full mt-16 bg-purple-600 hover:ring-purple-500 transition-colors duration-300 h-12"
+              >
+                Sign in
+              </Button>
 
-          <Button
-            type="submit"
-            className="w-full bg-purple-600 hover:ring-purple-500 transition-colors duration-300 h-12"
-          >
-            Sign in
-          </Button>
-        </form>
+
+              <p className="mt-8 text-center text-sm text-gray-400">
+                forgot your password?{' '}
+                <a href="/forgotemail" className="font-medium text-blue-700 hover:text-blue-600">
+                  reset
+                </a>
+              </p>
+            </Form>
+          )}
+        </Formik>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -97,12 +142,13 @@ export default function LoginPage() {
         </div>
 
         <button
-      type="button"
-      className="w-full bg-gray-700 border-gray-600 hover:bg-gray-600 transition-colors duration-300 h-12 flex items-center justify-center"
-    >
-      <AiOutlineGoogle className="mr-2 h-4 w-4" />
-      Google
-    </button>
+          type="button"
+          className="w-full bg-gray-700 border-gray-600 hover:bg-gray-600 transition-colors duration-300 h-12 flex items-center justify-center"
+          onClick={googleSubmit}
+        >
+          <AiOutlineGoogle className="mr-2 h-4 w-4" />
+          Google
+        </button>
 
         <p className="mt-8 text-center text-sm text-gray-400">
           Not a member?{' '}
@@ -112,5 +158,5 @@ export default function LoginPage() {
         </p>
       </motion.div>
     </div>
-  );
+  )
 }

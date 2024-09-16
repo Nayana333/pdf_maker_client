@@ -74,3 +74,21 @@ export const postRegister = (userData: FormValues) => {
     })
   
   }
+
+
+  export const postLogin = (userData:{email:string,password:string}) => {
+    console.log(userData);
+    
+    return new Promise((resolve, reject) => {
+        try {
+            apiCalls('post', userUrls.login, userData).then((response)=>{
+                resolve(response);
+            }).catch((err)=>{
+                reject(err);
+            })
+        } catch (error) {
+            resolve({ status: 500, message:"Somethings wrong." });
+        }
+    })
+  
+  }
