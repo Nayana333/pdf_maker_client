@@ -1,7 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom'
 import HomePage from '@/pages/Landing/landing';
-import LoginPage from '@/pages/Landing/Login/Login';
+import LoginPage from '@/pages/Login/Login';
 import SignUpPage from '@/pages/signup';
+import OtpVerify from '@/pages/otpVerify';
 
 
 const appRouter = createBrowserRouter([
@@ -16,6 +17,10 @@ const appRouter = createBrowserRouter([
     {
       path:'/signup',
       element:<SignUpPage/>
+    },
+    {
+      path:'/otp',
+      element:<OtpVerify/>
     }
   ]);
 

@@ -1,5 +1,8 @@
 export const userUrls ={
     register:'/users/register' ,
-    googleAuth:'/users/googleAuth' 
+    googleAuth:'/users/googleAuth',
+    verifyOTP:'/users/verifyOTP',
+    resendOTP:'/users/resendOTP'
+
    
 }
