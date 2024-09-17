@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { logout } from '@/utils/context/reducers/authSlice'
@@ -12,52 +12,112 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { FileUp, User, File, ChevronRight, LogOut } from "lucide-react"
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { pdfjs } from 'react-pdf'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+import * as Yup from 'yup'
+import { baseURL } from '../config'
+import toast from 'sonner'
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString()
 
 export default function Component() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [file, setFile] = useState<File | null>(null)
+  const [allImage, setAllImage] = useState<{ _id: string; title: string; pdf: string }[]>([])
+  const [loading, setLoading] = useState(false)
+  const [pdfFile, setPdfFile] = useState<string | null>(null)
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file && file.type === 'application/pdf') {
-      setSelectedFile(file)
-    } else {
-      alert('Please select a valid PDF file.')
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  
+ const selectUser = (state: any) => state.auth.user || '';
+  const user = useSelector(selectUser) || '';
+  const userId = user._id;
+
+  const initialValues = {
+    resume: null,
+  }
+
+  const validationSchema = Yup.object({
+    resume: Yup.mixed()
+      .required('File is required')
+      .test('fileSize', 'File too large', (value) => value && value.size <= 5000000)
+      .test('fileType', 'Invalid file type', (value) => value && value.type === 'application/pdf'),
+  })
+
+  const handleGetPages = async () => {
+    if (!file) {
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('pdf', file)
+      formData.append('title', file.name)
+      formData.append('userId', userId)
+
+      const response = await axios.post(`${baseURL}/api/users/upload-pdf`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      console.log('File uploaded successfully', response.data)
+    
+    } catch (error) {
+      console.error('Error uploading file', error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const dispatch=useDispatch()
-  const navigate=useNavigate()
-
-  const handleGetPages = () => {
-    if (selectedFile) {
-      console.log(`Processing ${selectedFile.name}...`)
-      alert(`Getting all pages from ${selectedFile.name}`)
-    } else {
-      alert('Please upload a PDF file first.')
-    }
-  }
-
-  const handleViewProfile = () => {
-    console.log("View Profile clicked")
-    // Implement view profile logic here
-  }
+  
 
   const handleLogout = () => {
-    dispatch(logout());
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userRefreshToken");
-    navigate("/login");
+    dispatch(logout())
+    localStorage.removeItem("userToken")
+    navigate("/login")
+  }
+
+  const handleSubmit = (values: any, { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }) => {
+    handleGetPages()
+    setSubmitting(false)
+  }
+
+
+
+
+  const getPdf = async (userId:string) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/users/get-files/${userId}`);
+      setAllImage(response.data.data); 
+    } catch (error) {
+      console.error('Error fetching PDF files:', error);
+    }
   };
+
+  const showPdf = (pdf:string) => {
+    setPdfFile(`http://localhost:3000/uploads/${pdf}`);
+  };
+  
+  useEffect(() => {
+    getPdf(userId);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white flex flex-col">
       <header className="bg-black bg-opacity-50 backdrop-blur-md shadow-lg fixed w-full z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
-            PDF Maker Pro
+            PDF Maker
           </h1>
           <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
             <DropdownMenuTrigger asChild>
@@ -71,10 +131,6 @@ export default function Component() {
                 <span className="text-sm">user@example.com</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-gray-700" />
-              <DropdownMenuItem className="focus:bg-gray-700 focus:text-white" onSelect={handleViewProfile}>
-                <User className="mr-2 h-4 w-4" />
-                <span>View Profile</span>
-              </DropdownMenuItem>
               <DropdownMenuItem className="focus:bg-gray-700 focus:text-white" onSelect={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Logout</span>
@@ -84,53 +140,94 @@ export default function Component() {
         </div>
       </header>
 
-      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-24 flex items-center justify-center">
-        <Card className="w-full max-w-md bg-gray-800 border-gray-700 shadow-2xl overflow-hidden">
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
-              Transform Your PDFs
-            </h2>
-            <div className="space-y-6">
+      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-col items-start">
+  <div className="w-full max-w-md">
+    <Card className="bg-gray-800 border-gray-700 shadow-2xl overflow-hidden">
+      <CardContent className="p-6">
+        <h2 className="text-2xl font-bold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+          Transform Your PDFs
+        </h2>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ setFieldValue }) => (
+            <Form className="space-y-6">
               <div className="relative group">
-                <input
-                  type="file"
-                  id="dropzone-file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  accept=".pdf"
-                />
                 <label
-                  htmlFor="dropzone-file"
+                  htmlFor="resume"
                   className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-600 border-dashed rounded-xl cursor-pointer bg-gray-700 group-hover:bg-gray-600 transition-all duration-300 ease-in-out overflow-hidden"
                 >
-                  {selectedFile ? (
+                  {file ? (
                     <div className="flex items-center justify-center w-full h-full text-center">
                       <div>
                         <File className="w-16 h-16 mb-3 text-blue-400 mx-auto" />
-                        <p className="text-sm text-gray-300">{selectedFile.name}</p>
+                        <p className="text-sm text-gray-300">{file.name}</p>
                       </div>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       <FileUp className="w-12 h-12 mb-4 text-blue-400" />
-                      <p className="mb-2 text-sm text-gray-300"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                      <p className="mb-2 text-sm text-gray-300">
+                        <span className="font-semibold">Click to upload</span> or drag and drop
+                      </p>
                       <p className="text-xs text-gray-500">PDF (MAX. 10MB)</p>
                     </div>
                   )}
+                  <input
+                    type="file"
+                    id="resume"
+                    name="resume"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    accept=".pdf"
+                    onChange={(event) => {
+                      const file = event.currentTarget.files?.[0];
+                      setFieldValue("resume", file);
+                      setFile(file || null);
+                    }}
+                  />
                 </label>
+                <ErrorMessage name="resume" component="div" className="text-red-500 text-sm" />
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
               </div>
-              <Button 
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-lg"
-                onClick={handleGetPages}
               >
-                Get All Pages
+                Upload
                 <ChevronRight className="ml-2 h-5 w-5" />
               </Button>
+            </Form>
+          )}
+        </Formik>
+      </CardContent>
+    </Card>
+
+    <div className="uploaded flex flex-col mt-8">
+      <h5 className="text-lg font-semibold mb-4">Uploaded PDFs:</h5>
+      <div className="output-div space-y-4">
+        {allImage.map((data) => (
+          <div
+            className="inner-div flex items-center justify-between p-4 bg-gray-800 border border-gray-700 rounded-lg shadow-md"
+            key={data._id}
+          >
+            <h6 className="text-sm font-medium text-gray-300">Title: {data.title}</h6>
+            <div className="flex space-x-2">
+              <button
+                className="btn btn-primary bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
+                onClick={() => showPdf(data.pdf)}
+                style={{ marginRight: '5px' }}
+              >
+                Show PDF
+              </button>
             </div>
-          </CardContent>
-        </Card>
-      </main>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</main>
 
       <footer className="bg-black bg-opacity-50 backdrop-blur-md py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400 text-sm">
