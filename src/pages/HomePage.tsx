@@ -23,7 +23,7 @@ import PdfComp from '@/components/PdfComp';
 
 import { pdfjs } from 'react-pdf';
 
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
 
 
 export default function Component() {
@@ -53,7 +53,6 @@ export default function Component() {
 
   const handleGetPages = async () => {
     if (!file) return;
-
     setLoading(true);
 
     try {
@@ -109,7 +108,7 @@ export default function Component() {
       console.error('Error fetching PDF files:', error);
     }
   };
-
+  
   const showPdf = (pdf: string) => {
     setPdfFile(`http://localhost:3000/uploads/${pdf}`);
   };
